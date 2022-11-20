@@ -8,19 +8,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import one.digitalinnovation.model.Parking;
+import one.digitalinnovation.service.ParkingService;
 
 @RestController
 @RequestMapping("/parking")
 public class ParkingController {
+	
+	private final ParkingService parkingService;
+	
+	public ParkingController(ParkingService parkingService) {
+		this.parkingService = parkingService;
+	}
 
 	@GetMapping
 	public List<Parking> findAll(){
-		
-		var parking = new Parking();
-		parking.setColor("Preto");
-		parking.setLicense("MSS-0666");
-		parking.setModel("VW GOL");
-		parking.setState("SP");
-		return Arrays.asList(parking, parking);
+		return parkingService.findAll();
 	}
 }
