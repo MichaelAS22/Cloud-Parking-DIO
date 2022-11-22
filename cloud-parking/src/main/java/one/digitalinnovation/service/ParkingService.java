@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import one.digitalinnovation.exception.ParkingNotFoundException;
 import one.digitalinnovation.model.Parking;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ParkingService {
@@ -19,6 +21,7 @@ public class ParkingService {
 		this.parkingRepository = parkingRepository;
 	}
 
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Parking> findAll() {
 		return parkingRepository.findAll();
 	}
@@ -27,11 +30,13 @@ public class ParkingService {
 		return UUID.randomUUID().toString().replace("-", "");
 	}
 
+	@Transactional(readOnly = true)
 	public Parking findById(String id) {
 		return parkingRepository.findById(id).orElseThrow( () ->
 				new ParkingNotFoundException(id));
 	}
 
+	@Transactional
 	public Parking create(Parking parkingCreate) {
 		String uuid = getUUID();
 		parkingCreate.setId(uuid);
@@ -45,6 +50,7 @@ public class ParkingService {
 		parkingRepository.deleteById(id);
 	}
 
+	@Transactional
 	public Parking update(String id, Parking parkingCreate) {
 		Parking parking = findById(id);
 		parking.setColor(parkingCreate.getColor());
@@ -55,11 +61,12 @@ public class ParkingService {
 		return parking;
 	}
 
-	public Parking exit(String id) {
+	@Transactional
+	public Parking checkOUt(String id) {
 		Parking parking = findById(id);
 		parking.setExitDate(LocalDateTime.now());
-//		parking.setBill(ParkingExit.getBill(parking));
-//		parkingRepository.save(parking);
+		parking.setBill(ParkingCheckout.getBill(parking));
+		parkingRepository.save(parking);
 		return parking;
 	}
 	
